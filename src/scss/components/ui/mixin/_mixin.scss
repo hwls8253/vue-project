@@ -1,0 +1,36 @@
+@use "~//util.scss" as *;
+
+@mixin checkbox {
+  input[type="checkbox"] {
+    border: 1px solid #ccc;
+    width: rem(18);
+    height: rem(18);
+    border-radius: 50%;
+    vertical-align: middle;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    &:checked {
+      background-color: #000;
+
+      &::after {
+        content: '';
+        border: rem(2) solid #fff;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        display: inline-block;
+        position: absolute;
+        left: rem(4);
+        top: rem(1);
+        width: rem(3);
+        height: rem(6);
+        transform: rotate(38deg);
+      }
+    }
+
+    &:disabled {
+      background-color: #ccc;
+    }
+  }
+}

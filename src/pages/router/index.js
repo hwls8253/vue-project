@@ -1,4 +1,4 @@
-import test from '&/router/test';
+import test from '@/pages/router/test';
 
 const pubRoutes = [
   ...test,

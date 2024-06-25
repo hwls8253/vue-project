@@ -1,0 +1,13 @@
+@charset "UTF-8";
+
+.btn {
+  border: rem(1) solid #ccc;
+  width: var(--width, 50%);
+  padding: rem(10);
+  background: yellow;
+  color: var(--color, #fff);
+}
+
+.active {
+  width: 100px;
+}

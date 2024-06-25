@@ -1,4 +1,4 @@
-import useSetRoutes from '&/guide/composables/useSetRoutes';
+import useSetRoutes from '@/pages/router/useSetRoutes';
 
 const path = 'pages';
 const namePrefix = 'test';
@@ -6,7 +6,7 @@ const namePrefix = 'test';
 const root = `/${path}/${namePrefix}/`;
 const { setName, setPageNameClass } = useSetRoutes();
 
-const routesBr = [
+const test = [
   {
     path: `${root}`,
     name: setName(namePrefix, 'Main'), // publishingPrMain
@@ -15,7 +15,7 @@ const routesBr = [
       wrapClass: [setPageNameClass(namePrefix, 'Main')], // pr-main
       containerClass: [],
     },
-    component: () => import('&/pages/test.vue'),
+    component: () => import('@/pages/circleButton.vue'),
   },
 ];
-export default routesBr;
+export default test;

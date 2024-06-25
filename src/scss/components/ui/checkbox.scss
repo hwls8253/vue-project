@@ -1,0 +1,45 @@
+@use "~/components/ui/mixin/mixin.scss" as form;
+
+.checkbox-group-wrap {
+  &.is-error {
+    .error-text {
+      @include form-error-txt;
+    }
+  }
+}
+
+.chekcbox-item {
+  &.checkbox-item-block {
+    display: block;
+
+    +.checkbox-item-block {
+      margin-top: rem(8);
+    }
+  }
+
+  &.checkbox-item-inline {
+    display: inline-block;
+    margin-right: rem(8);
+    margin-top: rem(8);
+  }
+
+  label {
+    user-select: none;
+    position: relative;
+    display: inline-block;
+    padding-left: rem(28px);
+  }
+
+  @include form.checkbox;
+}
+
+.checkbox-all-wrap {
+  position: relative;
+  @include form.checkbox;
+
+  label {
+    display: inline-block;
+    padding-left: rem(25);
+    padding-bottom: rem(10);
+  }
+}

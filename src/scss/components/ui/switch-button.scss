@@ -1,0 +1,46 @@
+.switch-button-wrap {
+  display: inline-block;
+
+  .switch-button {
+    &__label {
+      position: relative;
+      display: inline-block;
+      border: 1px solid #999;
+      background: #efefef;
+      width: rem(60);
+      height: rem(34);
+      border-radius: rem(20);
+    }
+
+    &__cirlce {
+      position: absolute;
+      left: rem(2);
+      top: 50%;
+      transform: translateY(-50%);
+      width: rem(30);
+      height: rem(30);
+      border-radius: 50%;
+      background: #421d6a;
+      transition: all .2s ease;
+    }
+
+    &__input {
+      &:checked {
+        width: 30px;
+        height: 40px;
+
+        +.switch-button__cirlce {
+          left: 100%;
+          transform: translate(calc(-100% - 2px), -50%);
+        }
+      }
+
+      &:disabled {
+        +.switch-button__cirlce {
+          background-color: #aaa;
+        }
+      }
+    }
+  }
+
+}

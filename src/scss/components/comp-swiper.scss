@@ -1,0 +1,36 @@
+@charset "UTF-8";
+.mySwiper {
+  width: rem(1400);
+}
+.image-text {
+  & img {
+    width: rem(328);
+    height: auto;
+  }
+  & p {
+    text-align: center;
+    padding-top: rem(10);
+  }
+} 
+.image-text-button {
+  & img {
+    width: rem(328);
+    height: auto;
+  }
+  & p {
+    text-align: center;
+  }
+  & button {
+    display: block;
+    margin: 10px auto;
+  }
+}
+.text-image-text {
+  & img {
+    width: rem(328);
+    height: auto;
+  }
+  & p {
+    text-align: center;
+  }
+}

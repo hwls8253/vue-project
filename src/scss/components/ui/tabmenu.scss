@@ -1,0 +1,35 @@
+//레이어 팝업
+.tabmenu-wrap {
+  .tabmenu-contents {
+    border: rem(1) solid #eee;
+  }
+
+  .tabmenu__btns-list {
+    border-bottom: rem(1) solid #000;
+
+    .tabmenu__btn-wrap {
+      button {
+        border-radius: rem(3);
+        border: 1px solid #ccc;
+        background-color: #eee;
+        padding: rem(8) rem(20);
+        word-break: keep-all;
+      }
+
+      &.active {
+        button {
+          background: #f2ebfa;
+        }
+      }
+    }
+  }
+
+  .no-data {
+    text-align: center;
+    padding: rem(16);
+  }
+
+  .swiper-slide {
+    width: auto;
+  }
+}

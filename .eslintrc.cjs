@@ -12,8 +12,8 @@ module.exports = {
   settings: {
     ...createAliasSetting({
       '@': `${path.resolve(__dirname, 'src')}`,
-      '&': `${path.resolve(__dirname, 'src/publishing')}`,
-      '~': `${path.resolve(__dirname, 'src/service')}`,
+      '&': `${path.resolve(__dirname, 'src/pages')}`,
+      '~': `${path.resolve(__dirname, 'src/scss')}`,
     }),
   },
   rules: {
