@@ -1,95 +1,76 @@
 <script setup>
-	let ondrag = false;
-	const startXY = {
-		x: 0, y: 0,
-	};
-	const originXY = {
-		x: 0, y: 0,
-	};
-	let dragTarget = null;
-	let startAngle = 0;
+import { ref } from 'vue';
 
-	// feature bindings
-	const elements = Array.prototype.slice.call(document.getElementsByClassName('rotatable'));
-	console.log(elements);
-	const computeAngle = (point, origin) => {
-		const dx = point.x - origin.x;
-		const dy = origin.y - point.y;
+const wheel = ref(null);
+const path = '/';
+const styleObject = {
+  rotate: 0,
+  nex: 0,
+  degreeAngle: null,
+  startTouches: null,
+};
 
-		let radians = 0;
-		if (dx || dy) radians = Math.atan2(dx, dy);
-		// if (radians < 0) radians += 2 * Math.PI;
+const touchStart = (event) => {
+  styleObject.nex = wheel.value.style.transform ?? 0;
+  styleObject.nex = parseFloat(styleObject.nex.slice(7));
+  styleObject.startTouches = {
+    x: event.changedTouches[0].pageX,
+    y: event.changedTouches[0].pageY,
+  };
+};
 
-		return radians;
-	};
-	const mousemoveHandler = (event) => {
-		const currentXY = {
-			x: event.clientX,
-			y: event.clientY,
-		};
+const touchMove = (event) => {
+  const touch = {
+    x: event.changedTouches[0].pageX,
+    y: event.changedTouches[0].pageY,
+  };
+  // 원의 중심
+  const center = {
+    x: wheel.value.offsetLeft + wheel.value.offsetWidth / 2,
+    y: wheel.value.offsetTop + wheel.value.offsetHeight / 2,
+  };
+  // 거리 - 최대 +
+  const distanceX = (center.x - touch.x) * (center.y - styleObject.startTouches.y) - (center.y - touch.y) * (center.x - styleObject.startTouches.x);
+  const distanceY = (center.x - touch.x) * (center.x - styleObject.startTouches.x) + (center.y - touch.y) * (center.y - styleObject.startTouches.y);
+  let distance = Math.atan2(distanceX, distanceY);
+  distance *= -1;
+  styleObject.degreeAngle = distance * (180 / Math.PI);
+  styleObject.rotate = styleObject.degreeAngle + styleObject.nex;
+  wheel.value.style.transform = `rotate(${styleObject.rotate}deg)`;
+};
 
-		const currentAngle = computeAngle(currentXY, originXY);
-		const rotation = currentAngle - startAngle;
-		dragTarget.style.transform = `rotate(${rotation}rad)`;
-		// console.log('mousemove:', rotation, 'rad', rotation * 360 / (2 * Math.PI), 'degrees');
-	};
-	const mouseupHandler = (event) => {
-		ondrag = false;
-		dragTarget = null;
-
-		window.removeEventListener('mousemove', mousemoveHandler);
-		window.removeEventListener('mouseup', mouseupHandler);
-		// console.log('mouseup, drag done');
-	};
-	const stopSelect = (e) => {
-		if (e.stopPropagation) e.stopPropagation();
-		e.cancelBubble = true;
-		// if (e.preventDefault) e.preventDefault();
-		// e.returnValue = false;
-		return false;
-	};
-	elements.forEach((e) => {
-		e.addEventListener('mousedown', (event) => {
-			ondrag = true;
-			startXY.x = event.clientX;
-			startXY.y = event.clientY;
-			const viewportOffset = e.getBoundingClientRect();
-			originXY.x = viewportOffset.left + e.clientLeft + e.clientWidth / 2;
-			originXY.y = viewportOffset.top + e.clientTop + e.clientHeight / 2;
-			dragTarget = event.currentTarget;
-			startAngle = computeAngle(startXY, originXY);
-
-			// disable selection, to capture mousemove properly (use css)
-			// dragTarget.style.userSelect = 'none';
-
-			// trace drag on window object, don't care mouse outside browser or not
-			window.addEventListener('mousemove', mousemoveHandler);
-			window.addEventListener('mouseup', mouseupHandler);
-
-			console.log('drag start\n', startXY, originXY, '\n', startAngle * 360 / (2 * Math.PI), 'degrees');
-			return stopSelect(event);
-		});
-	});
 </script>
 <template>
-  <div class="container" ref="container">
-    <ul class="wheel">
-      <li><router-link v-bind:to="test">linkName1</router-link></li>
-      <li><router-link v-bind:to="test">linkName2</router-link></li>
-      <li><router-link v-bind:to="test">linkName3</router-link></li>
-      <li><router-link v-bind:to="test">linkName4</router-link></li>
-      <li><router-link v-bind:to="test">linkName5</router-link></li>
-    </ul>
+  <div class="container">
+    <div class="wheel">
+      <span> {{ styleObject }}</span>
+      <ul
+        class="wheel__content"
+        ref="wheel"
+        @touchstart="touchStart"
+        @touchmove="touchMove"
+        :style="{ transform: `rotate(${styleObject.rotate}deg)` }">
+        <li class="wheel__item"><router-link v-bind:to="path">linkName1</router-link></li>
+        <li class="wheel__item"><router-link v-bind:to="path">linkName2</router-link></li>
+        <li class="wheel__item"><router-link v-bind:to="path">linkName3</router-link></li>
+        <li class="wheel__item"><router-link v-bind:to="path">linkName4</router-link></li>
+        <li class="wheel__item"><router-link v-bind:to="path">linkName5</router-link></li>
+      </ul>
+    </div>
   </div>
 </template>
 <style lang="scss">
 @import "~/mixin/br/mixin.scss";
 .container {
+  position: relative;
   width: 100%;
   height: 100vh;
 }
 
 .wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: fixed;
   top:0;
   bottom:0;
@@ -97,10 +78,11 @@
   right:0;
   background-color: rgba(0,0,0,.5);
   .wheel__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: fixed;
-    left:50%;
-    bottom: rem(-100);
-    transform: translate(-50%,0);
+    bottom: rem(-50);
     max-width: rem(400);
     max-height: rem(400);
     width: 70vw;
@@ -116,14 +98,16 @@
       justify-content: center;
       width: rem(100);
       height: rem(100);
-      left:50%;
-      top:50%;
-      transform: translate(-50%,-50%);
       background-color: #fff;
       border-radius: 100%;
     }
     .wheel__item {
       position:absolute;
+      left:0;
+      top:0;
+      padding:5px;
+      background:rgba(0,0,0,.5);
+      color: #fff;
     }
   }
 }
