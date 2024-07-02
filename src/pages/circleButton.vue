@@ -1,18 +1,71 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const wheel = ref(null);
-const path = '/';
 const styleObject = {
   rotate: 0,
   nex: 0,
   degreeAngle: null,
   startTouches: null,
+  centerX: 0,
+  centerY: 0,
+};
+
+const circleItems = [
+  {
+    name: 'item1',
+    path: '/',
+    className: 'wheel__item1',
+  },
+  {
+    name: 'item2',
+    path: '/',
+    className: 'wheel__item2',
+  },
+  {
+    name: 'item3',
+    path: '/',
+    className: 'wheel__item3',
+  },
+  {
+    name: 'item4',
+    path: '/',
+    className: 'wheel__item4',
+  },
+  {
+    name: 'item5',
+    path: '/',
+    className: 'wheel__item5',
+  },
+];
+
+// 초기 각도와 각도 증가량을 계산하는 함수
+const calculateAngles = (num) => {
+  const initialAngle = -90; // 12시 방향을 시작점으로 설정
+  const angleIncrement = 360 / num;
+  return { initialAngle, angleIncrement };
+};
+
+const circleFunc = () => {
+  const buttonBox = document.querySelectorAll('.wheel__content > li');
+  const radius = wheel.value.offsetWidth / 2; // 원 반지름
+  const boxLength = buttonBox.length;
+
+  const { initialAngle, angleIncrement } = calculateAngles(boxLength);
+
+  for (let i = 0; i < boxLength; i += 1) {
+    const angle = i * angleIncrement - initialAngle; // -90은 시계방향을 위함
+    const radians = angle * (Math.PI / 180);
+
+    const x = radius * Math.cos(radians) * 0.8;
+    const y = radius * Math.sin(radians) * 0.8;
+    buttonBox[i].style.transform = `translate(${x}px, ${y}px)`;
+  }
 };
 
 const touchStart = (event) => {
-  styleObject.nex = wheel.value.style.transform ?? 0;
-  styleObject.nex = parseFloat(styleObject.nex.slice(7));
+  styleObject.nex = wheel.value.style.transform;
+  styleObject.nex = parseFloat(styleObject.nex.slice(7)) ?? styleObject.rotate;
   styleObject.startTouches = {
     x: event.changedTouches[0].pageX,
     y: event.changedTouches[0].pageY,
@@ -24,21 +77,35 @@ const touchMove = (event) => {
     x: event.changedTouches[0].pageX,
     y: event.changedTouches[0].pageY,
   };
-  // 원의 중심
-  const center = {
-    x: wheel.value.offsetLeft + wheel.value.offsetWidth / 2,
-    y: wheel.value.offsetTop + wheel.value.offsetHeight / 2,
-  };
+
   // 거리 - 최대 +
-  const distanceX = (center.x - touch.x) * (center.y - styleObject.startTouches.y) - (center.y - touch.y) * (center.x - styleObject.startTouches.x);
-  const distanceY = (center.x - touch.x) * (center.x - styleObject.startTouches.x) + (center.y - touch.y) * (center.y - styleObject.startTouches.y);
+  const distanceX = (styleObject.centerX - touch.x) * (styleObject.centerY - styleObject.startTouches.y) - (styleObject.centerY - touch.y) * (styleObject.centerX - styleObject.startTouches.x);
+  const distanceY = (styleObject.centerX - touch.x) * (styleObject.centerX - styleObject.startTouches.x) + (styleObject.centerY - touch.y) * (styleObject.centerY - styleObject.startTouches.y);
   let distance = Math.atan2(distanceX, distanceY);
   distance *= -1;
   styleObject.degreeAngle = distance * (180 / Math.PI);
   styleObject.rotate = styleObject.degreeAngle + styleObject.nex;
   wheel.value.style.transform = `rotate(${styleObject.rotate}deg)`;
+
+  const buttonItems = document.querySelectorAll('.wheel__content > li > a');
+  buttonItems.forEach((e) => {
+    e.style.transform = `rotate(${styleObject.rotate * -1}deg)`;
+  });
 };
 
+const touchEnd = (event) => {
+  const currentRotate = parseFloat(wheel.value.style.transform.slice(7));
+  console.log(currentRotate);
+};
+
+onMounted(() => {
+  // 원의 중심
+  styleObject.centerX = wheel.value.offsetLeft + wheel.value.offsetWidth / 2;
+  styleObject.centerY = wheel.value.offsetTop + wheel.value.offsetHeight / 2;
+
+  // 버튼 위치
+  circleFunc();
+});
 </script>
 <template>
   <div class="container">
@@ -49,12 +116,19 @@ const touchMove = (event) => {
         ref="wheel"
         @touchstart="touchStart"
         @touchmove="touchMove"
+        @touchend="touchEnd"
         :style="{ transform: `rotate(${styleObject.rotate}deg)` }">
-        <li class="wheel__item"><router-link v-bind:to="path">linkName1</router-link></li>
-        <li class="wheel__item"><router-link v-bind:to="path">linkName2</router-link></li>
-        <li class="wheel__item"><router-link v-bind:to="path">linkName3</router-link></li>
-        <li class="wheel__item"><router-link v-bind:to="path">linkName4</router-link></li>
-        <li class="wheel__item"><router-link v-bind:to="path">linkName5</router-link></li>
+        <li
+          v-for="item in circleItems"
+          :key="item"
+          :class="[item.className]"
+          :style="{ }">
+          <router-link
+            :to="item.path"
+            :style="{ transform: `rotate(${styleObject.rotate}deg)` }">
+            {{ item.name }}
+          </router-link>
+        </li>
       </ul>
     </div>
   </div>
@@ -82,7 +156,7 @@ const touchMove = (event) => {
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: rem(-50);
+    bottom: rem(-20);
     max-width: rem(400);
     max-height: rem(400);
     width: 70vw;
@@ -96,18 +170,21 @@ const touchMove = (event) => {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: rem(100);
-      height: rem(100);
+      width: calc(70vw / 3);
+      height: calc(70vw / 3);
+      max-width: rem(130);
+      max-height: rem(130);
       background-color: #fff;
       border-radius: 100%;
     }
-    .wheel__item {
+    [class*='wheel__item'] {
       position:absolute;
-      left:0;
-      top:0;
-      padding:5px;
-      background:rgba(0,0,0,.5);
       color: #fff;
+      a {
+        display: block;
+        padding:5px;
+        background:rgba(0,0,0,.5);
+      }
     }
   }
 }
